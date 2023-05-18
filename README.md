@@ -17,12 +17,12 @@ omz_converter --name retinaface-resnet50-pytorch --download_dir model --precisio
 <br/><br/>
 <b>Step 4a:</b> Run face detection without blurring
 ```
-python face_detection.py -m .\model\public\retinaface-resnet50-pytorch\FP32\retinaface-resnet50-pytorch.xml -at retinaface-pytorch -i corridor_video.mp4
+python face_detection.py -m .\model\public\retinaface-resnet50-pytorch\FP32\retinaface-resnet50-pytorch.xml -at retinaface-pytorch -i corridor_video.mp4 -o output.mp4
 ```
 <br/>
 <br/><br/>
 <b>Step 4b:</b> Run face detection with blurring
 ```
-python face_detection.py -m .\model\public\retinaface-resnet50-pytorch\FP32\retinaface-resnet50-pytorch.xml -b -at retinaface-pytorch -i corridor_video.mp4
+python face_detection.py -m .\model\public\retinaface-resnet50-pytorch\FP32\retinaface-resnet50-pytorch.xml -b -at retinaface-pytorch -i corridor_video.mp4 -o output.mp4
 ```
 <br/>
