@@ -130,17 +130,32 @@ def build_argparser():
     return parser
 
 
-def blur_image(image):   
-    # Apply a Gaussian blur to the image
-    blurred_image = cv2.GaussianBlur(image, (71, 71), 0)
+def ellipse_blur(cropped_face, height, width):
+    kernel_width = (width//5) if (width//5)%2==1 else (width//5)+1
+    kernel_height = (height//5) if (height//5)%2==1 else (height//5)+1
+    
+    # create a mask image of the same shape face, filled with 0s (black color)
+    mask = np.zeros_like(cropped_face)
+    rows, cols,_ = mask.shape
 
-    return blurred_image
+    # create a white filled ellipse
+    mask=cv2.ellipse(
+        mask, center=(int(cols/2), int(rows/2)), axes=(int(cols/2),int(rows/2)), 
+        angle=0, startAngle=0, endAngle=360, color=(255,255,255), thickness=-1
+        )
+
+    blur = cv2.GaussianBlur(cropped_face, (kernel_width, kernel_height), 0)
+    blurred_face = np.where(mask==np.array([255, 255, 255]), blur, cropped_face)
+    
+    return blurred_face
 
 
 def draw_detections(frame, detections, palette, labels, output_transform):
     args = build_argparser().parse_args()
     
     frame = output_transform.resize(frame)
+    height, width = frame.shape[:2]
+    
     for detection in detections:
         class_id = int(detection.id)
         color = palette[class_id]
@@ -151,13 +166,12 @@ def draw_detections(frame, detections, palette, labels, output_transform):
         if args.blur:
             cropped_face = frame[ymin:ymax , xmin:xmax]
             
-            blurred_face = blur_image(cropped_face)
+            blurred_face = ellipse_blur(cropped_face, height, width)
             
             frame[ymin:ymax , xmin:xmax] = blurred_face
         
-        cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
-        cv2.putText(frame, '{} {:.1%}'.format(det_label, detection.score),
-                    (xmin, ymin - 7), cv2.FONT_HERSHEY_COMPLEX, 0.6, color, 1)
+        #cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
+        #cv2.putText(frame, '{} {:.1%}'.format(det_label, detection.score), (xmin, ymin - 7), cv2.FONT_HERSHEY_COMPLEX, 0.6, color, 1)
         # if isinstance(detection, DetectionWithLandmarks):
         #     for landmark in detection.landmarks:
         #         landmark = output_transform.scale(landmark)
